@@ -1,4 +1,5 @@
 import os
+import sys
 import logging
 from flask import Flask, jsonify, Blueprint, request
 
@@ -9,7 +10,7 @@ from api.utils.responses import response_with
 from api.utils import responses as resp
 
 from api.routes.authors import author_routes
-
+from api.routes.books import book_routes
 
 def create_app():
     print(" ==> Create app...")
@@ -30,6 +31,7 @@ def create_app():
 
     app.config.from_object(app_config)
     app.register_blueprint(author_routes, url_prefix='/api/authors')
+    app.register_blueprint(book_routes, url_prefix='/api/books')
 
     @app.after_request
     def add_header(response):
