@@ -7,25 +7,26 @@ class Config(object):
     TESTING = False
     # CSRF_ENABLED = True # Because API
     # SECRET_KEY = 'this-really-needs-to-be-changed'
-    # SQLALCHEMY_TRACK_MODIFICATIONS = False
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+
 
 class ProductionConfig(Config):
-    SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL_PROD']
+    SQLALCHEMY_DATABASE_URI = os.environ['DB_URL_PROD']
     DEBUG = False
 
 
 class StagingConfig(Config):
-    SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL_STAGING']
+    SQLALCHEMY_DATABASE_URI = os.environ['DB_URL_STAGING']
     DEVELOPMENT = True
     DEBUG = True
 
 
 class DevelopmentConfig(Config):
-    SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL_DEV']
+    SQLALCHEMY_DATABASE_URI = os.environ['DB_URL_DEV']
     DEVELOPMENT = True
     DEBUG = True
 
 
 class TestingConfig(Config):
-    SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL_TESTING']
+    SQLALCHEMY_DATABASE_URI = os.environ['DB_URL_TESTING']
     TESTING = True

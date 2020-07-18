@@ -2,7 +2,6 @@ from flask import make_response, jsonify
 
 API_NAME = 'Flask REST API'
 
-
 SUCCESS_200 = {
     'http_code': 200,
     'code': 'success'
