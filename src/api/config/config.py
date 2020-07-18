@@ -8,6 +8,7 @@ class Config(object):
     CSRF_ENABLED = False # Because API
     # SECRET_KEY = 'this-really-needs-to-be-changed'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    YABOOK_ITEMS_PER_PAGE = 3
 
     key = 'DB_URL'
     if not os.environ.get(key):
@@ -29,6 +30,7 @@ class Config(object):
 class ProductionConfig(Config):
     ENV = 'production'
     DEBUG = False
+    YABOOK_POSTS_PER_PAGE = 10
 
 
 class StagingConfig(Config):

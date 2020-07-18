@@ -1,11 +1,12 @@
 import sys
 
-from flask import Blueprint, request
+from flask import Blueprint, request, current_app, url_for
 from api.utils.responses import response_with
 from api.utils import responses as resp
 from api.models.books import Book, BookSchema
 from api.utils.database import db
 from flask_jwt_extended import jwt_required
+
 
 book_routes = Blueprint("book_routes", __name__)
 
@@ -17,7 +18,7 @@ def create_book():
         data = request.get_json()
         book_schema = BookSchema()
         book = book_schema.load(data)
-        print("DEBUG: got book:", book, file=sys.stderr)
+        # print("DEBUG: got book:", book, file=sys.stderr)
 
         result = book_schema.dump(book.create())
 
@@ -28,42 +29,42 @@ def create_book():
         return response_with(resp.INVALID_INPUT_422)
 
 
-## Get list of all books - TODO: Pagination
-# @book_routes.route('/', methods=['GET'])
-# def get_book_list():
-#     fetched = Book.query.all()
-#     book_schema = BookSchema(many=True, only=['author_id', 'title', 'year'])
-#     books = book_schema.dump(fetched)
-
-#     return response_with(resp.SUCCESS_200, value={"books": books})
-
-## Get list of all books - TODO: Pagination
+## Get list of all books with Pagination - No Auth required (so far)
 @book_routes.route('/', methods=['GET'])
 def get_book_list():
-    page = request.args.get('page', 1, type=int) # default 1st page
+    page = request.args.get('page', 1, type=int) # default 1st page, cast it as an int
+    num_item_per_page = current_app.config['YABOOK_ITEMS_PER_PAGE']
+
+    # start from first page:
+    if page < 0: page = 1
 
     pagination = Book.query.paginate(
-        page, per_page=current_app.config['YABOOK_POSTS_PER_PAGE'],
+        page, per_page=num_item_per_page,
         error_out=False)
 
+    count = pagination.total
+    max_pages = count // num_item_per_page
+    max_pages += 0 if count % num_item_per_page == 0 else 1
+
     fetched = pagination.items
-    prev, next = None, None
+    prev_url, next_url = None, None
 
     if pagination.has_prev:
-        prev = url_for('api.get_book_list', page=page-1)
+        if page <= max_pages:
+            prev_url = url_for('book_routes.get_book_list', page=page-1)
+        else:
+            # point to actual last page (for example)
+            prev_url = url_for('book_routes.get_book_list', page=max_pages)
 
     if pagination.has_next:
-        next = url_for('api.get_book_list', page=page+1)
+        next_url = url_for('book_routes.get_book_list', page=page+1)
 
-    
-    book_schema = BookSchema(many=True, only=['author_id', 'title', 'year'])  
+    book_schema = BookSchema(many=True, only=['author_id', 'title', 'year'])
     books = book_schema.dump(fetched)
-
-    # TODO: plug: prev_url, next_url, count
-    value = {'books': books, 'prev_url': prev, 
-      'next_url': next,
-      'count': pagination.total
-    } 
+    value = {'books': books, 'prev_url': prev_url,
+      'next_url': next_url,
+      'count': count
+    }
 
     return response_with(resp.SUCCESS_200, value=value)
 

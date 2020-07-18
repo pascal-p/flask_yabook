@@ -1,6 +1,6 @@
 import sys
 
-from flask import Blueprint, request
+from flask import Blueprint, request, current_app, url_for
 from api.utils.responses import response_with
 from api.utils import responses as resp
 from api.models.authors import Author, AuthorSchema
@@ -15,11 +15,8 @@ author_routes = Blueprint("author_routes", __name__)
 def create_author():
     try:
         data = request.get_json()
-        print("DEBUG: got data:", data, file=sys.stderr)
         author_schema = AuthorSchema()
-        print("DEBUG: got author_schema:", author_schema, file=sys.stderr)
         author = author_schema.load(data)
-        print("DEBUG: got author:", author, file=sys.stderr)
 
         result = author_schema.dump(author.create())  # .data
 
@@ -30,15 +27,44 @@ def create_author():
         return response_with(resp.INVALID_INPUT_422)
 
 
-## Get list of all authors - TODO: Pagination
+## Get list of all authors with Pagination - No Auth required (so far)
 @author_routes.route('/', methods=['GET'])
-@jwt_required
 def get_author_list():
-    fetched = Author.query.all()
+    page = request.args.get('page', 1, type=int) # default 1st page, cast it as an int
+    num_item_per_page = current_app.config['YABOOK_ITEMS_PER_PAGE']
+
+    # start from first page:
+    if page < 0: page = 1
+
+    pagination = Author.query.paginate(
+        page, per_page=num_item_per_page,
+        error_out=False)
+
+    count = pagination.total
+    max_pages = count // num_item_per_page
+    max_pages += 0 if count % num_item_per_page == 0 else 1
+
+    fetched = pagination.items
+    prev_url, next_url = None, None
+
+    if pagination.has_prev:
+        if page <= max_pages:
+            prev_url = url_for('author_routes.get_author_list', page=page-1)
+        else:
+            # point to actual last page (for example)
+            prev_url = url_for('author_routes.get_author_list', page=max_pages)
+
+    if pagination.has_next:
+        next_url = url_for('author_routes.get_author_list', page=page+1)
+
     author_schema = AuthorSchema(many=True, only=['first_name', 'last_name', 'id'])
     authors = author_schema.dump(fetched)
+    value = {'authors': authors, 'prev_url': prev_url,
+      'next_url': next_url,
+      'count': count
+    }
 
-    return response_with(resp.SUCCESS_200, value={"authors": authors})
+    return response_with(resp.SUCCESS_200, value=value)
 
 
 ## Get one specific Author
