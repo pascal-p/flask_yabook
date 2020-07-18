@@ -4,42 +4,38 @@ import logging
 from flask import Flask, jsonify, Blueprint, request
 from flask_jwt_extended import JWTManager
 
-from api.config.database import DevelopmentConfig
-
 from api.utils.database import db
 from api.utils.responses import response_with
 from api.utils import responses as resp
-
 from api.routes.authors import author_routes
 from api.routes.books import book_routes
 from api.routes.users import user_routes
 
+URL_PREFIX = '/api/'
 
 def create_app():
     app = Flask(__name__)
-    app.config['JWT_SECRET_KEY'] = os.environ.get('JWT_SECRET_KEY')
 
-    for key, dval in [('JWT_ACCESS_TOKEN_EXPIRES', 600),
-                      ('JWT_REFRESH_TOKEN_EXPIRES', 86400)]:
-        val = os.environ.get('JWT_ACCESS_TOKEN_EXPIRES')
-        app.config[key] = dval if val is None else val
-    
-    if os.environ.get('WORK_ENV') == 'PROD':
-        app_config = ProductionConfig
+    if os.environ.get('ENV') == 'production':
+        from api.config.config import ProductionConfig
+        app.config.from_object(ProductionConfig())
 
-    elif os.environ.get('WORK_ENV') == 'TEST':
-        app_config = TestingConfig
+    elif os.environ.get('ENV') == 'test':
+        from api.config.config import TestConfig
+        app.config.from_object(TestingConfig())
 
-    elif os.environ.get('WORK_ENV') == 'STAGING':
-        app_config = StagingConfig
+    elif os.environ.get('ENV') == 'staging':
+        from api.config.config import StagingConfig
+        app.config.from_object(StagingConfig())
 
     else:
-        app_config = DevelopmentConfig
+        from api.config.config import DevelopmentConfig
+        app.config.from_object(DevelopmentConfig())
+        print("=> DEBUG: ", app.config)
 
-    app.config.from_object(app_config)
-    app.register_blueprint(author_routes, url_prefix='/api/authors')
-    app.register_blueprint(book_routes, url_prefix='/api/books')
-    app.register_blueprint(user_routes, url_prefix='/api/users')
+    app.register_blueprint(author_routes, url_prefix=URL_PREFIX + 'authors')
+    app.register_blueprint(book_routes, url_prefix=URL_PREFIX + 'books')
+    app.register_blueprint(user_routes, url_prefix=URL_PREFIX + 'users')
 
     @app.after_request
     def add_header(response):
@@ -77,7 +73,7 @@ def create_app():
             'msg': f'The {token_type} token has expired'
         }
         return response_with(resp.UNAUTHORIZED_401, value)
-        
+
     return app, jwt
 
 

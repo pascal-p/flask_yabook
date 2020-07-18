@@ -53,7 +53,6 @@ SERVER_ERROR_404 = {
     "message": "Resource not found"
 }
 
-
 UNAUTHORIZED_401 = {
     "http_code": 401,
     "code": "unAuthorized",

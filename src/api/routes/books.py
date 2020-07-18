@@ -29,14 +29,43 @@ def create_book():
 
 
 ## Get list of all books - TODO: Pagination
+# @book_routes.route('/', methods=['GET'])
+# def get_book_list():
+#     fetched = Book.query.all()
+#     book_schema = BookSchema(many=True, only=['author_id', 'title', 'year'])
+#     books = book_schema.dump(fetched)
+
+#     return response_with(resp.SUCCESS_200, value={"books": books})
+
+## Get list of all books - TODO: Pagination
 @book_routes.route('/', methods=['GET'])
 def get_book_list():
-    fetched = Book.query.all()
-    author_schema = BookSchema(many=True, only=['author_id', 'title', 'year'])
-    authors = book_schema.dump(fetched)
+    page = request.args.get('page', 1, type=int) # default 1st page
 
-    return response_with(resp.SUCCESS_200, value={"books": books})
+    pagination = Book.query.paginate(
+        page, per_page=current_app.config['YABOOK_POSTS_PER_PAGE'],
+        error_out=False)
 
+    fetched = pagination.items
+    prev, next = None, None
+
+    if pagination.has_prev:
+        prev = url_for('api.get_book_list', page=page-1)
+
+    if pagination.has_next:
+        next = url_for('api.get_book_list', page=page+1)
+
+    
+    book_schema = BookSchema(many=True, only=['author_id', 'title', 'year'])  
+    books = book_schema.dump(fetched)
+
+    # TODO: plug: prev_url, next_url, count
+    value = {'books': books, 'prev_url': prev, 
+      'next_url': next,
+      'count': pagination.total
+    } 
+
+    return response_with(resp.SUCCESS_200, value=value)
 
 ## Get one specific Book
 @book_routes.route('/<int:book_id>', methods=['GET'])
