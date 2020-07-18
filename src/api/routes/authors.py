@@ -5,11 +5,13 @@ from api.utils.responses import response_with
 from api.utils import responses as resp
 from api.models.authors import Author, AuthorSchema
 from api.utils.database import db
+from flask_jwt_extended import jwt_required
 
 author_routes = Blueprint("author_routes", __name__)
 
 ## Create new Author
 @author_routes.route('/', methods=['POST'])
+@jwt_required
 def create_author():
     try:
         data = request.get_json()
@@ -30,6 +32,7 @@ def create_author():
 
 ## Get list of all authors - TODO: Pagination
 @author_routes.route('/', methods=['GET'])
+@jwt_required
 def get_author_list():
     fetched = Author.query.all()
     author_schema = AuthorSchema(many=True, only=['first_name', 'last_name', 'id'])
@@ -50,6 +53,7 @@ def get_author_detail(author_id):
 
 ## Update (whole)  Author
 @author_routes.route('/<int:id>', methods=['PUT'])
+@jwt_required
 def update_author_detail(id):
     data, get_author = _find_author_by_id(id)
 
@@ -65,6 +69,7 @@ def update_author_detail(id):
 
 ## Update (partial) Author
 @author_routes.route('/<int:id>', methods=['PATCH'])
+@jwt_required
 def modify_author_detail(id):
     data, get_author = _find_author_by_id(id)
 
@@ -81,6 +86,7 @@ def modify_author_detail(id):
 
 ## Delete an Author
 @author_routes.route('/<int:id>', methods=['DELETE'])
+@jwt_required
 def delete_author(id):
     get_author = Author.query.get_or_404(id)
 

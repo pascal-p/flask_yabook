@@ -2,6 +2,7 @@ import os
 import sys
 import logging
 from flask import Flask, jsonify, Blueprint, request
+from flask_jwt_extended import JWTManager
 
 from api.config.database import DevelopmentConfig
 
@@ -11,27 +12,34 @@ from api.utils import responses as resp
 
 from api.routes.authors import author_routes
 from api.routes.books import book_routes
+from api.routes.users import user_routes
+
 
 def create_app():
-    print(" ==> Create app...")
     app = Flask(__name__)
+    app.config['JWT_SECRET_KEY'] = os.environ.get('JWT_SECRET_KEY')
 
+    for key, dval in [('JWT_ACCESS_TOKEN_EXPIRES', 600),
+                      ('JWT_REFRESH_TOKEN_EXPIRES', 86400)]:
+        val = os.environ.get('JWT_ACCESS_TOKEN_EXPIRES')
+        app.config[key] = dval if val is None else val
+    
     if os.environ.get('WORK_ENV') == 'PROD':
         app_config = ProductionConfig
-        
+
     elif os.environ.get('WORK_ENV') == 'TEST':
         app_config = TestingConfig
-        
+
     elif os.environ.get('WORK_ENV') == 'STAGING':
         app_config = StagingConfig
-        
+
     else:
-        print(" ==> env is DEV")
         app_config = DevelopmentConfig
 
     app.config.from_object(app_config)
     app.register_blueprint(author_routes, url_prefix='/api/authors')
     app.register_blueprint(book_routes, url_prefix='/api/books')
+    app.register_blueprint(user_routes, url_prefix='/api/users')
 
     @app.after_request
     def add_header(response):
@@ -51,15 +59,28 @@ def create_app():
     def server_error(err):
         logging.error(e)
         return response_with(resp.SERVER_ERROR_500)
-    
+
+    jwt = JWTManager(app)
     db.init_app(app)
 
     with app.app_context():
         db.create_all()
 
-    return app
+    ## Using the expired_token_loader decorator, we will now call
+    ## this function whenever an expired but otherwise valid access
+    ## token attempts to access an endpoint
+    @jwt.expired_token_loader
+    def expired_token_callback(expired_token):
+        token_type = expired_token['type']
+        value = {
+            'sub_status': 666,
+            'msg': f'The {token_type} token has expired'
+        }
+        return response_with(resp.UNAUTHORIZED_401, value)
+        
+    return app, jwt
 
 
 if __name__ == "__main__":
-    app = create_app()
+    app, jwt = create_app()
     app.run(port=5000, host="0.0.0.0", use_reloader=False)
