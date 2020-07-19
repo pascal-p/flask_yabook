@@ -22,8 +22,8 @@ def create_app():
         from api.config.config import ProductionConfig
         app.config.from_object(ProductionConfig())
 
-    elif os.environ.get('ENV') == 'test':
-        from api.config.config import TestConfig
+    elif os.environ.get('ENV') == 'testing':
+        from api.config.config import TestingConfig
         app.config.from_object(TestingConfig())
 
     elif os.environ.get('ENV') == 'staging':
@@ -60,10 +60,12 @@ def create_app():
 
     jwt = JWTManager(app)
     mail.init_app(app)
-    db.init_app(app)
-    
-    with app.app_context():
-        db.create_all()
+
+    if os.environ.get('ENV') != 'testing':
+        db.init_app(app)
+
+        with app.app_context():
+            db.create_all()
 
     ## Using the expired_token_loader decorator, we will now call
     ## this function whenever an expired but otherwise valid access

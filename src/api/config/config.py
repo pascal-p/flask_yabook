@@ -21,7 +21,7 @@ class Config(object):
     YABOOK_ITEMS_PER_PAGE = 3
     EMAIL_TOKEN_EXP=assign_with_default('EMAIL_TOKEN_EXP', 3600)
 
-    SQLALCHEMY_DATABASE_URI = os.environ['DB_URL']
+    # SQLALCHEMY_DATABASE_URI = os.environ['DB_URL']
     SQLALCHEMY_DATABASE_URI = assign_or_raise('DB_URL')
 
     JWT_ACCESS_TOKEN_EXPIRES = assign_with_default('JWT_ACCESS_TOKEN_EXPIRES', 600)
@@ -62,3 +62,21 @@ class DevelopmentConfig(Config):
 class TestingConfig(Config):
     ENV = 'testing'
     TESTING = True
+    SQLALCHEMY_ECHO = False
+    SQLALCHEMY_URI = None # will be set up later
+    
+    # JWT_SECRET_KEY = 'JWT-SECRET'
+    # SECRET_KEY= 'SECRET-KEY'
+    # SECURITY_PASSWORD_SALT= 'PASSWORD-SALT'
+
+    # not going to test email functionality  
+    MAIL_DEFAULT_SENDER= 'test@nowhere.org'
+    MAIL_SERVER = 'localhost'  # 'smtp.gmail.com'
+    MAIL_PORT = 465
+    MAIL_USERNAME= ''
+    MAIL_PASSWORD= ''
+    MAIL_USE_TLS= True
+    MAIL_USE_SSL= False
+
+    # not yet
+    # UPLOAD_FOLDER= 'images'

@@ -83,8 +83,10 @@ def verify_email(token):
 def authenticate_user():
       try:
         data = request.get_json()
-        if data.get('email') :
+        
+        if data.get('email'):
             current_user = User.find_by_email(data['email'])
+            
         elif data.get('username'):
             current_user = User.find_by_username(data['username'])
         else:
@@ -99,8 +101,8 @@ def authenticate_user():
 
         if User.verify_hash(data['password'], current_user.password):
             access_token = create_access_token(identity=current_user.username, expires_delta=False)
-            refresh_token = create_refresh_token(identity=data['username'], expires_delta=False)
-            return response_with(resp.CREATED_201,
+            refresh_token = create_refresh_token(identity=current_user.username, expires_delta=False)
+            return response_with(resp.SUCCESS_200,
                                  value={'message': f'Logged in as {current_user.username}',
                                         'access_token': access_token,
                                         'refresh_token': refresh_token})
@@ -108,7 +110,7 @@ def authenticate_user():
             return response_with(resp.UNAUTHORIZED_401)
 
       except Exception as ex:
-        print(ex, file=sys.stderr)
+        print(f"Intercepted Exception: {ex}", file=sys.stderr)
         return response_with(resp.INVALID_INPUT_422)
 
 
