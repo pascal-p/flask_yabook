@@ -78,7 +78,7 @@ def get_book_detail(book_id):
     return response_with(resp.SUCCESS_200, value={"book": book})
 
 
-## Update (whole)  Book
+## Update (whole) Book
 @book_routes.route('/<int:id>', methods=['PUT'])
 @jwt_required
 def update_book_detail(id):

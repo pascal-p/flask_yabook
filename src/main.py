@@ -1,17 +1,19 @@
-import os
-import sys
-import logging
+import os, sys, logging
 from flask import Flask, jsonify, Blueprint, request
 from flask_jwt_extended import JWTManager
 
 from api.utils.database import db
 from api.utils.responses import response_with
 from api.utils import responses as resp
+from api.utils.mail import mail
+
 from api.routes.authors import author_routes
 from api.routes.books import book_routes
 from api.routes.users import user_routes
 
+
 URL_PREFIX = '/api/'
+
 
 def create_app():
     app = Flask(__name__)
@@ -57,8 +59,9 @@ def create_app():
         return response_with(resp.SERVER_ERROR_500)
 
     jwt = JWTManager(app)
+    mail.init_app(app)
     db.init_app(app)
-
+    
     with app.app_context():
         db.create_all()
 
