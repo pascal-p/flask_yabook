@@ -1,6 +1,8 @@
 import os, sys, logging
 from flask import Flask, jsonify, Blueprint, request
 from flask_jwt_extended import JWTManager
+from flask_swagger import swagger
+from flask_swagger_ui import get_swaggerui_blueprint
 
 from api.utils.database import db
 from api.utils.responses import response_with
@@ -10,9 +12,6 @@ from api.utils.mail import mail
 from api.routes.authors import author_routes
 from api.routes.books import book_routes
 from api.routes.users import user_routes
-
-
-URL_PREFIX = '/api/'
 
 
 def create_app():
@@ -35,9 +34,9 @@ def create_app():
         app.config.from_object(DevelopmentConfig())
         print("=> DEBUG: ", app.config)
 
-    app.register_blueprint(author_routes, url_prefix=URL_PREFIX + 'authors')
-    app.register_blueprint(book_routes, url_prefix=URL_PREFIX + 'books')
-    app.register_blueprint(user_routes, url_prefix=URL_PREFIX + 'users')
+    app.register_blueprint(author_routes, url_prefix=app.config['URL_PREFIX'] + 'authors')
+    app.register_blueprint(book_routes, url_prefix=app.config['URL_PREFIX'] + 'books')
+    app.register_blueprint(user_routes, url_prefix=app.config['URL_PREFIX'] + 'users')
 
     @app.after_request
     def add_header(response):
@@ -58,8 +57,22 @@ def create_app():
         logging.error(e)
         return response_with(resp.SERVER_ERROR_500)
 
+    @app.route("/api/spec")
+    def spec():
+        swag = swagger(app, prefix=app.config['URL_PREFIX'])
+        swag['info']['base'] = request.host_url  # "http://localhost:5000"
+        swag['info']['version'] = app.config['API_VER']
+        swag['info']['title'] = app.config['APP_NAME']
+        return jsonify(swag)
+
     jwt = JWTManager(app)
     mail.init_app(app)
+
+    swaggerui_blueprint = get_swaggerui_blueprint('/api/docs', '/api/spec', 
+                                                  config={'app_name': app.config['APP_NAME']}) 
+    app.register_blueprint(swaggerui_blueprint,
+                           url_prefix='/api/docs') # SWAGGER_URL)  # where is it define?
+
 
     if os.environ.get('ENV') != 'testing':
         db.init_app(app)
@@ -84,4 +97,4 @@ def create_app():
 
 if __name__ == "__main__":
     app, jwt = create_app()
-    app.run(port=5000, host="0.0.0.0", use_reloader=False)
+    app.run(port=app.config['PORT'], host=app.config['HOST'], use_reloader=False)

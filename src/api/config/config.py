@@ -19,9 +19,15 @@ class Config(object):
     CSRF_ENABLED = False # Because API
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     YABOOK_ITEMS_PER_PAGE = 3
-    EMAIL_TOKEN_EXP=assign_with_default('EMAIL_TOKEN_EXP', 3600)
+    
+    EMAIL_TOKEN_EXP = assign_with_default('EMAIL_TOKEN_EXP', 3600)
 
-    # SQLALCHEMY_DATABASE_URI = os.environ['DB_URL']
+    URL_PREFIX = '/api/'
+    HOST = '127.0.0.1'
+    PORT = 5000
+    API_VER = '1.0'
+    APP_NAME = "Flask YaBook DB"
+
     SQLALCHEMY_DATABASE_URI = assign_or_raise('DB_URL')
 
     JWT_ACCESS_TOKEN_EXPIRES = assign_with_default('JWT_ACCESS_TOKEN_EXPIRES', 600)
@@ -44,8 +50,9 @@ class ProductionConfig(Config):
     ENV = 'production'
     DEBUG = False
     YABOOK_POSTS_PER_PAGE = 10
-    # overwriet MAIL PREFS
-
+    # TODO: overwrite MAIL PREFS
+    # TODO: overwrite HOST, PORT
+    
 
 class StagingConfig(Config):
     ENV = 'staging'

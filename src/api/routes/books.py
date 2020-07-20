@@ -14,6 +14,65 @@ book_routes = Blueprint("book_routes", __name__)
 @book_routes.route('/', methods=['POST'])
 @jwt_required
 def create_book():
+    """
+    Create book endpoint
+    ---
+    parameters:
+      - in: body
+        name: body
+        schema:
+          id: Book
+          required:
+            - title
+            - year
+            - author_id
+          properties:
+            title:
+              type: string
+              description: Title of the book
+            year:
+              type: integer
+              description: Year book was published
+            author_id:
+              type: integer
+              description: Book's author
+      - in: header
+        name: authorization
+        type: string
+        required: true
+    security:
+      - Bearer: []
+    responses:
+      201:
+        description: Book successfully created
+        schema:
+          id: BookCreated
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            value:
+              schema:
+                id: BookFull
+                properties:
+                  title:
+                    type: string
+                  year:
+                    type: integer
+                  author_id:
+                    type: integer
+      422:
+        description: Invalid input arguments
+        schema:
+          id: invalidInput
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+    """
+
     try:
         data = request.get_json()
         book_schema = BookSchema()
@@ -30,6 +89,35 @@ def create_book():
 ## Get list of all books with Pagination - No Auth required (so far)
 @book_routes.route('/', methods=['GET'])
 def get_book_list():
+    """
+    Get book list endpoint
+    ---
+    parametrers:
+    responses:
+      200:
+        description: Book List
+        schema:
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            value:
+              schema:
+                  books:
+                    type: array
+                    items:
+                      schema:
+                        id: BookFull
+                        properties:
+                          title:
+                            type: string
+                          year:
+                            type: integer
+                          author_id:
+                            type: integer
+    """
+
     page = request.args.get('page', 1, type=int) # default 1st page, cast it as an int
     num_item_per_page = current_app.config['YABOOK_ITEMS_PER_PAGE']
 
@@ -112,6 +200,37 @@ def modify_book_detail(id):
 @book_routes.route('/<int:id>', methods=['DELETE'])
 @jwt_required
 def delete_book(id):
+    """
+    Delete book endpoint
+    ---
+    parameters:
+      - name: id
+        in: path
+        description: book ID
+        required: true
+        schema:
+          type: integer
+
+      - in: header
+        name: authorization
+        type: string
+        required: true
+    security:
+      - Bearer: []
+    responses:
+      204:
+        description: Book successfully deleted
+        schema:
+      422:
+        description: Invalid input arguments
+        schema:
+          id: invalidInput
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+    """
     get_book = Book.query.get_or_404(id)
 
     _persist(db, get_book, action='delete')

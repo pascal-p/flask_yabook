@@ -16,6 +16,8 @@ Flask-Mail==0.9.1
 Flask-Migrate==2.5.3
 Flask-Moment==0.10.0
 Flask-SQLAlchemy==2.4.4
+flask-swagger==0.2.14
+flask-swagger-ui==3.25.0
 future==0.18.2
 gast==0.3.3
 google-auth==1.19.0

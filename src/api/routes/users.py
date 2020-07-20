@@ -22,6 +22,49 @@ user_routes = Blueprint("user_routes", __name__)
 ## sign up
 @user_routes.route('/', methods=['POST'])
 def create_user():
+    """
+    Create user endpoint
+    ---
+    parameters:
+      - in: body
+        name: body
+        schema:
+          id: UserSignup
+          required:
+            - username
+            - password
+            - email
+          properties:
+            username:
+              type: string
+              description: Unique username of the user
+              default: "John Doe"
+            password:
+              type: string
+              description: Password of the user
+              default: "something strong"
+            email:
+              type: string
+              description: email of the user
+              default: "useremail@provider.org"
+    responses:
+      201:
+        description: User successfully created
+        schema:
+          id: UserSignUpSchema
+          properties:
+            code:
+              type: string
+      422:
+        description: Invalid input arguments
+        schema:
+          id: invalidInput
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+    """
     try:
         data = request.get_json()
         ## user already defined
