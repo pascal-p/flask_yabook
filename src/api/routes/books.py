@@ -1,4 +1,4 @@
-import sys
+import sys, logging
 
 from flask import Blueprint, request, current_app, url_for
 from api.utils.responses import response_with
@@ -18,14 +18,12 @@ def create_book():
         data = request.get_json()
         book_schema = BookSchema()
         book = book_schema.load(data)
-        # print("DEBUG: got book:", book, file=sys.stderr)
-
         result = book_schema.dump(book.create())
 
         return response_with(resp.CREATED_201, value={"book": result})
 
     except Exception as ex:
-        print("Intercepted Exception:", ex, file=sys.stderr)
+        logging.error(f"Intercepted Exception: {ex}")
         return response_with(resp.INVALID_INPUT_422)
 
 
@@ -99,7 +97,6 @@ def update_book_detail(id):
 @jwt_required
 def modify_book_detail(id):
     data, get_book = _find_book_by_id(id)
-
     if data.get('title'):
         get_book.title = data['title']
 
@@ -140,5 +137,5 @@ def _persist(db, book, action='add'):
         db.session.commit()
 
     except Exception as ex:
-        print("Intercepted Exception:", ex, file=sys.stderr)
+        logging.error(f"Intercepted Exception: {ex}")
         return response_with(resp.INVALID_INPUT_422)

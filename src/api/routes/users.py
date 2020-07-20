@@ -52,16 +52,16 @@ def create_user():
         return response_with(resp.CREATED_201)
 
     except Exception as ex:
-        print(ex, file=sys.stderr)
+        logging.error(f"Intercepted Exception: {ex}")
         return response_with(resp.INVALID_INPUT_422)
 
 
 ## email validation
 @user_routes.route('/confirm/<string:token>', methods=['GET'])
 def verify_email(token):
-    try:        
+    try:
         email = confirm_verification_token(token)
-        
+
     except:
         return response_with(resp.SERVER_ERROR_401)
 
@@ -83,10 +83,10 @@ def verify_email(token):
 def authenticate_user():
       try:
         data = request.get_json()
-        
+
         if data.get('email'):
             current_user = User.find_by_email(data['email'])
-            
+
         elif data.get('username'):
             current_user = User.find_by_username(data['username'])
         else:
@@ -110,7 +110,7 @@ def authenticate_user():
             return response_with(resp.UNAUTHORIZED_401)
 
       except Exception as ex:
-        print(f"Intercepted Exception: {ex}", file=sys.stderr)
+        logging.error(f"Intercepted Exception: {ex}")
         return response_with(resp.INVALID_INPUT_422)
 
 
@@ -133,5 +133,5 @@ def refresh():
         return response_with(resp.CREATED_201, value)
 
     except  Exception as ex:
-        print(ex, file=sys.stderr)
+        logging.error(f"Intercepted Exception: {ex}")
         return response_with(resp.INVALID_INPUT_422)

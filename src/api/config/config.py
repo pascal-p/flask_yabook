@@ -65,10 +65,6 @@ class TestingConfig(Config):
     SQLALCHEMY_ECHO = False
     SQLALCHEMY_URI = None # will be set up later
     
-    # JWT_SECRET_KEY = 'JWT-SECRET'
-    # SECRET_KEY= 'SECRET-KEY'
-    # SECURITY_PASSWORD_SALT= 'PASSWORD-SALT'
-
     # not going to test email functionality  
     MAIL_DEFAULT_SENDER= 'test@nowhere.org'
     MAIL_SERVER = 'localhost'  # 'smtp.gmail.com'
@@ -78,5 +74,6 @@ class TestingConfig(Config):
     MAIL_USE_TLS= True
     MAIL_USE_SSL= False
 
+    JWT_ACCESS_TOKEN_EXPIRES=60
     # not yet
     # UPLOAD_FOLDER= 'images'

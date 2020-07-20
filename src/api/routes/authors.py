@@ -1,4 +1,4 @@
-import sys
+import sys, logging
 
 from flask import Blueprint, request, current_app, url_for
 from api.utils.responses import response_with
@@ -23,7 +23,7 @@ def create_author():
         return response_with(resp.CREATED_201, value={"author": result})
 
     except Exception as ex:
-        print("Intercepted Exception:", ex, file=sys.stderr)
+        logging.error(f"Intercepted Exception: {ex}")
         return response_with(resp.INVALID_INPUT_422)
 
 
@@ -139,5 +139,5 @@ def _persist(db, author, action='add'):
         db.session.commit()
 
     except Exception as ex:
-        print("Intercepted Exception:", ex, file=sys.stderr)
+        logging.error(f"Intercepted Exception: {ex}")
         return response_with(resp.INVALID_INPUT_422)
