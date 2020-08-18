@@ -6,15 +6,15 @@ from flask_jwt_extended import (
     create_access_token, create_refresh_token,
 )
 
-from api.utils.responses import response_with
-from api.utils.database import db
-from api.utils import responses as resp
-from api.utils.token import (
+from project.api.utils.responses import response_with
+from project.api.utils.database import db
+from project.api.utils import responses as resp
+from project.api.utils.token import (
     generate_verification_token,
     confirm_verification_token
 )
-from api.utils.mail import send_email
-from api.models.users import User, UserSchema
+from project.api.utils.mail import send_email
+from project.api.models.users import User, UserSchema
 
 
 user_routes = Blueprint("user_routes", __name__)

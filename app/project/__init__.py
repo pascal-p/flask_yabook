@@ -1,36 +1,37 @@
 import os, sys, logging
+
 from flask import Flask, jsonify, Blueprint, request
 from flask_jwt_extended import JWTManager
 from flask_swagger import swagger
 from flask_swagger_ui import get_swaggerui_blueprint
 
-from api.utils.database import db
-from api.utils.responses import response_with
-from api.utils import responses as resp
-from api.utils.mail import mail
+from project.api.utils.database import db
+from project.api.utils.responses import response_with
+from project.api.utils import responses as resp
+from project.api.utils.mail import mail
 
-from api.routes.authors import author_routes
-from api.routes.books import book_routes
-from api.routes.users import user_routes
+from project.api.routes.authors import author_routes
+from project.api.routes.books import book_routes
+from project.api.routes.users import user_routes
 
 
 def create_app():
     app = Flask(__name__)
 
     if os.environ.get('FLASK_ENV') == 'production':
-        from api.config.config import ProductionConfig
+        from project.api.config.config import ProductionConfig
         app.config.from_object(ProductionConfig())
 
     elif os.environ.get('FLASK_ENV') == 'testing':
-        from api.config.config import TestingConfig
+        from project.api.config.config import TestingConfig
         app.config.from_object(TestingConfig())
 
     elif os.environ.get('FLASK_ENV') == 'staging':
-        from api.config.config import StagingConfig
+        from project.api.config.config import StagingConfig
         app.config.from_object(StagingConfig())
 
     else:
-        from api.config.config import DevelopmentConfig
+        from project.api.config.config import DevelopmentConfig
         app.config.from_object(DevelopmentConfig())
         print("=> DEBUG: ", app.config)
 
@@ -92,11 +93,5 @@ def create_app():
         }
         return response_with(resp.UNAUTHORIZED_401, value)
 
-    return app, jwt
-
-
-if __name__ == "__main__":
-    app, jwt = create_app()
-    app.run(port=app.config['PORT'], host=app.config['HOST'], use_reloader=False)
-    ##
-    ## Alt. use python -m flask run instead
+    app.shell_context_processor({'app': app, 'db': db})
+    return app

@@ -1,6 +1,7 @@
-from api.utils.database import db
 from marshmallow_sqlalchemy import ModelSchema
 from marshmallow import fields
+
+from project.api.utils.database import db
 
 ## Book Model
 class Book(db.Model):

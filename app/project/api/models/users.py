@@ -1,9 +1,10 @@
 import datetime
 
-from api.utils.database import db
 from passlib.hash import pbkdf2_sha512 as sha512
 from marshmallow_sqlalchemy import ModelSchema
 from marshmallow import fields
+
+from project.api.utils.database import db
 
 ## User Model
 class User(db.Model):

@@ -1,11 +1,13 @@
 import sys, logging
 
 from flask import Blueprint, request, current_app, url_for
-from api.utils.responses import response_with
-from api.utils import responses as resp
-from api.models.authors import Author, AuthorSchema
-from api.utils.database import db
 from flask_jwt_extended import jwt_required
+
+from project.api.utils.responses import response_with
+from project.api.utils import responses as resp
+from project.api.models.authors import Author, AuthorSchema
+from project.api.utils.database import db
+
 
 author_routes = Blueprint("author_routes", __name__)
 

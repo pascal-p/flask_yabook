@@ -1,11 +1,12 @@
 import sys, logging
 
 from flask import Blueprint, request, current_app, url_for
-from api.utils.responses import response_with
-from api.utils import responses as resp
-from api.models.books import Book, BookSchema
-from api.utils.database import db
 from flask_jwt_extended import jwt_required
+
+from project.api.utils.responses import response_with
+from project.api.utils import responses as resp
+from project.api.models.books import Book, BookSchema
+from project.api.utils.database import db
 
 
 book_routes = Blueprint("book_routes", __name__)
