@@ -2,11 +2,12 @@ import json
 import io
 import unittest
 
-from api.utils.test_base import RootTestCase
-from api.models.authors import Author
-from api.models.books import Book
 from datetime import datetime
 from flask_jwt_extended import create_access_token
+
+from project.api.utils.test_base import RootTestCase
+from project.api.models.authors import Author
+from project.api.models.books import Book
 
 
 CONTENT_TYPE = 'application/json'

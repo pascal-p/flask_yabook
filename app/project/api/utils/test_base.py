@@ -1,15 +1,15 @@
 import unittest
 import tempfile
 
-from main import create_app
-from api.utils.database import db
-from api.config.config import TestingConfig
+from project import create_app
+from project.api.utils.database import db
+from project.api.config.config import TestingConfig
 
 class RootTestCase(unittest.TestCase):
     "A base test case"
 
     def setUp(self):
-        app, _jwt = create_app() # will select TestingConfig
+        app = create_app() # will select TestingConfig
         self.test_db_file = tempfile.mkstemp()[1]
 
         app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + self.test_db_file

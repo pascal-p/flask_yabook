@@ -2,9 +2,10 @@ import json
 import unittest
 
 from datetime import datetime
-from api.utils.test_base import RootTestCase
-from api.models.users import User
-from api.utils.token import generate_verification_token, confirm_verification_token
+
+from project.api.utils.test_base import RootTestCase
+from project.api.models.users import User
+from project.api.utils.token import generate_verification_token, confirm_verification_token
 
 
 def set_users():
