@@ -2,7 +2,6 @@ import os
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 
-
 def assign_or_raise(key):
     if not os.environ.get(key):
         raise ValueError(f"No {key} set for Flask application")
@@ -19,11 +18,11 @@ class Config(object):
     CSRF_ENABLED = False # Because API
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     YABOOK_ITEMS_PER_PAGE = 3
-    
+
     EMAIL_TOKEN_EXP = assign_with_default('EMAIL_TOKEN_EXP', 3600)
 
     URL_PREFIX = '/api/'
-    HOST = '127.0.0.1'
+    HOST = '0.0.0.0'  ## Externalized
     PORT = 5000
     API_VER = '1.0'
     APP_NAME = "Flask YaBook DB"
@@ -47,32 +46,29 @@ class Config(object):
 
 
 class ProductionConfig(Config):
-    ENV = 'production'
     DEBUG = False
     YABOOK_POSTS_PER_PAGE = 10
     # TODO: overwrite MAIL PREFS
     # TODO: overwrite HOST, PORT
-    
+
 
 class StagingConfig(Config):
-    ENV = 'staging'
     DEVELOPMENT = True
     DEBUG = True
 
 
 class DevelopmentConfig(Config):
-    ENV = 'development'
+    FLASK_ENV='development'
     DEVELOPMENT = True
     DEBUG = True
 
 
 class TestingConfig(Config):
-    ENV = 'testing'
     TESTING = True
     SQLALCHEMY_ECHO = False
     SQLALCHEMY_URI = None # will be set up later
-    
-    # not going to test email functionality  
+
+    # not going to test email functionality
     MAIL_DEFAULT_SENDER= 'test@nowhere.org'
     MAIL_SERVER = 'localhost'  # 'smtp.gmail.com'
     MAIL_PORT = 465

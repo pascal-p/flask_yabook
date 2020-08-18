@@ -17,15 +17,15 @@ from api.routes.users import user_routes
 def create_app():
     app = Flask(__name__)
 
-    if os.environ.get('ENV') == 'production':
+    if os.environ.get('FLASK_ENV') == 'production':
         from api.config.config import ProductionConfig
         app.config.from_object(ProductionConfig())
 
-    elif os.environ.get('ENV') == 'testing':
+    elif os.environ.get('FLASK_ENV') == 'testing':
         from api.config.config import TestingConfig
         app.config.from_object(TestingConfig())
 
-    elif os.environ.get('ENV') == 'staging':
+    elif os.environ.get('FLASK_ENV') == 'staging':
         from api.config.config import StagingConfig
         app.config.from_object(StagingConfig())
 
@@ -68,13 +68,13 @@ def create_app():
     jwt = JWTManager(app)
     mail.init_app(app)
 
-    swaggerui_blueprint = get_swaggerui_blueprint('/api/docs', '/api/spec', 
-                                                  config={'app_name': app.config['APP_NAME']}) 
+    swaggerui_blueprint = get_swaggerui_blueprint('/api/docs', '/api/spec',
+                                                  config={'app_name': app.config['APP_NAME']})
     app.register_blueprint(swaggerui_blueprint,
                            url_prefix='/api/docs') # SWAGGER_URL)  # where is it define?
 
 
-    if os.environ.get('ENV') != 'testing':
+    if os.environ.get('FLASK_ENV') != 'testing':
         db.init_app(app)
 
         with app.app_context():
@@ -98,3 +98,5 @@ def create_app():
 if __name__ == "__main__":
     app, jwt = create_app()
     app.run(port=app.config['PORT'], host=app.config['HOST'], use_reloader=False)
+    ##
+    ## Alt. use python -m flask run instead
