@@ -22,7 +22,7 @@ services:
       context: ./app
       dockerfile: Dockerfile-dev
     volumes:
-      - './app/src/:/src/'
+      - './app/project/:/project/'
     ports:
       - 5003:5000
     depends_on:

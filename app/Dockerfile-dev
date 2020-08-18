@@ -12,7 +12,7 @@ FROM python:3.8-slim-buster
 ##
 
 ## Set the working dir. in the container
-RUN mkdir -p app/src
+RUN mkdir -p app/project
 WORKDIR app/
 ## Now in app/ from container standpoint
 
@@ -25,18 +25,18 @@ RUN apt-get update && apt-get install -y netcat-openbsd && apt-get -q clean
 RUN pip install --upgrade pip
 
 ## Copy the dependencies file to the working dir.
-COPY src/requirements.txt .
+COPY manage.py requirements.txt ./
 
 ## Install dependencies
 RUN pip install -r requirements.txt
 
 ## Copy the content of the local src dir. to the working dir.
 # RUN mkdir -m0755 src/
-COPY src/ src/
+COPY project/ project/
 COPY .env_dev .env_dev
 
 ## Copy and run entrypoint.sh instead to create DB
-COPY entrypoint-dev.sh /tmp/entrypoint-dev.sh
+COPY entrypoint-dev.sh /tmp/entrypoint.sh
 
 ##
-CMD ["/tmp/entrypoint-dev.sh"]
+CMD ["/tmp/entrypoint.sh"]

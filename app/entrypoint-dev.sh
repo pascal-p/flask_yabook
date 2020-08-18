@@ -12,9 +12,8 @@ done
 
 echo "PostgreSQL started..."
 echo "--------------------------------"
-ls -la . src/
+ls -la . project/
 echo "--------------------------------"
 
 ## Start App (already in /app)
-/bin/bash -c 'source /app/.env_dev && python src/main.py'
-
+/bin/bash -c 'source /app/.env_dev && python manage.py run -h 0.0.0.0'
