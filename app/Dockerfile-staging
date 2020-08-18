@@ -1,0 +1,41 @@
+## for DB Container
+
+## Pull official base image
+FROM python:3.8-slim-buster
+
+##
+## https://pythonspeed.com/articles/alpine-docker-python/ - As of Jan-April 2020
+## do not use Alpine for building a python image (unless ready to dive into compile
+## and optimization for linking...)
+## Alpine => musl instead of standard glibc - means all python deps need to be compiled
+## this will take time and depending on compile/linking options, will take more space
+##
+
+## Set the working dir. in the container
+RUN mkdir -p app/src
+WORKDIR app/
+## Now in app/ from container standpoint
+
+## set environment variables
+ENV PYTHONDONTWRITEBYTECODE 1  # Prevents Python from writing pyc files (equiv. to python -B)
+ENV PYTHONUNBUFFERED 1         # Prevents Python from buffering stdout and stderr (equiv. to python -u)
+
+## Install system dependencies
+RUN apt-get update && apt-get install -y netcat-openbsd && apt-get -q clean
+RUN pip install --upgrade pip
+
+## Copy the dependencies file to the working dir.
+COPY src/requirements.txt .
+
+## Install dependencies
+RUN pip install -r requirements.txt
+
+## Copy the content of the local src dir. to the working dir.
+COPY src/ src/
+COPY .env_staging .env_staging
+
+## Copy and run entrypoint.sh instead to create DB
+COPY entrypoint-staging.sh /tmp/entrypoint-staging.sh
+
+##
+CMD ["/tmp/entrypoint-staging.sh"]

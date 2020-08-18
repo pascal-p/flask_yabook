@@ -1,0 +1,7 @@
+*~
+**/*.pyc.
+
+.dockerignore
+
+__pycache__/*
+tests/*

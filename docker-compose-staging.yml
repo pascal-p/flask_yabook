@@ -1,0 +1,34 @@
+version: '3.7'
+
+services:
+## PG
+  book-db:
+    container_name: books-db-staging
+    build:
+      context: ./db
+      dockerfile: Dockerfile
+    restart: always
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    env_file:
+      - ./db/.db-staging.env
+    ports:
+    - "5433:5432"
+
+## Flask App
+  book-app:
+    container_name: books-app-staging
+    build:
+      context: ./app
+      dockerfile: Dockerfile-staging
+    volumes:
+      - './app/:/app/'    # FIXME: Review volume
+    ports:
+      - 5003:5000
+    depends_on:
+      - book-db
+    links:
+      - book-db
+
+volumes:
+  postgres_data:
